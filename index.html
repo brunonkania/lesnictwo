@@ -2,13 +2,18 @@
 <html lang="pl">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>Bank Wiedzy Leśnej</title>
+    
+    <!-- FAVICON -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌲</text></svg>">
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <style>
       body {
         background-color: #2E4A3D; /* Ciemna zieleń */
+        -webkit-tap-highlight-color: transparent;
       }
       @keyframes fade-in {
           from { opacity: 0; transform: translateY(10px); }
@@ -17,11 +22,12 @@
       .animate-fade-in {
           animation: fade-in 0.5s ease-out forwards;
       }
-      /* Stylizacja paska przewijania wewnątrz ramki */
       iframe {
           border: none;
-          background: white;
+          background: #E6D2B5;
       }
+      .scrollbar-hide::-webkit-scrollbar { display: none; }
+      .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 <script type="importmap">
 {
@@ -41,44 +47,84 @@
       // --- KONFIGURACJA DANYCH ---
       const FORM_LINK = "https://docs.google.com/forms/d/e/1FAIpQLScL5KeTFtejwyQZV_vO116bFVCSvffa0KXcU6MRo--zK8ASnw/viewform?usp=header";
       
+      // --- KONFIGURACJA LINKÓW ZEWNĘTRZNYCH ---
+      const EXTERNAL_LINKS = [
+          { 
+            name: "USOS URK", 
+            url: "https://usosweb.urk.edu.pl/kontroler.php?_action=news/default", 
+            icon: "🎓" 
+          },
+          { 
+            name: "Plan Zajęć", 
+            url: "https://docs.google.com/spreadsheets/d/16qGxR0QS-3aru8uMRVuXWahPO6hb63Q3/edit?rtpof=true&gid=846141112#gid=846141112", 
+            icon: "📅" 
+          },
+          { 
+            name: "Poczta Outlook", 
+            url: "https://login.microsoftonline.com/common/oauth2/v2.0/authorize?client_id=9199bf20-a13f-4107-85dc-02114787ef48&scope=https%3A%2F%2Foutlook.office.com%2F.default%20openid%20profile%20offline_access&redirect_uri=https%3A%2F%2Foutlook.live.com%2Fmail%2F&client-request-id=c29e5cb6-a8b0-77c6-42f5-e9a8f9e003e2&response_mode=fragment&client_info=1&prompt=select_account&nonce=019af103-6082-7350-9f10-950b6903128d&state=eyJpZCI6IjAxOWFmMTAzLTYwODItNzdhOS1iOWEwLTcwYzFjMGI1MTEyNCIsIm1ldGEiOnsiaW50ZXJhY3Rpb25UeXBlIjoicmVkaXJlY3QifX0%3D%7CaHR0cHM6Ly9vdXRsb29rLmxpdmUuY29tL21haWwvMC8_ZGVlcGxpbms9bWFpbCUyRjAlMkYlM0ZubHAlM0Qw&claims=%7B%22access_token%22%3A%7B%22xms_cc%22%3A%7B%22values%22%3A%5B%22CP1%22%5D%7D%7D%7D&x-client-SKU=msal.js.browser&x-client-VER=4.26.0&response_type=code&code_challenge=Hns88rSmQXcCiGH9DxwzdXsUH0EtZXTOnxFjx_qAneU&code_challenge_method=S256&cobrandid=ab0455a0-8d03-46b9-b18b-df2f57b9e44c&fl=dob,flname,wld", 
+            icon: "📧" 
+          }
+      ];
+
       const YEAR_DATA = [
           {
               year: 1,
               driveId: "1p9GrK85Mw1a7Vo_vlC-ZpD9xrniZWUyS",
-              description: "Materiały z przedmiotów podstawowych. Fundament wiedzy każdego leśnika."
+              description: "Fundament wiedzy leśnika."
           },
           {
               year: 2,
               driveId: "1V72amXeUrCfxcxdewcbYuw03CeORKUHP",
-              description: "Notatki i opracowania z kluczowych przedmiotów kierunkowych."
+              description: "Kluczowe przedmioty kierunkowe."
           },
           {
               year: 3,
               driveId: "1_ZKjHOPJOu517WVu6kVkkYHpygMhoVdr",
-              description: "Zarządzanie, ochrona i urządzanie lasu. Materiały do inżyniera."
+              description: "Już blisko do inżynierki."
           }
       ];
 
-      // --- Komponent Zakładek (Tabs) ---
+      // --- Komponent Zakładek ---
       const Tabs = ({ years, activeYear, onSelectYear }) => {
           return (
-              <div className="flex justify-center space-x-2 md:space-x-4 mb-8">
+              <div className="flex flex-wrap justify-center gap-2 md:gap-4 mb-6 md:mb-8">
                   {years.map((year) => (
                       <button
                           key={year}
                           onClick={() => onSelectYear(year)}
-                          className={`py-3 px-6 md:px-10 rounded-full text-lg font-bold transition-all duration-300 transform focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[#2E4A3D] focus:ring-[#F5F5DC] ${
+                          className={`whitespace-nowrap py-3 px-4 md:px-10 rounded-full text-sm md:text-lg font-bold transition-all duration-300 transform focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[#2E4A3D] focus:ring-[#D2B48C] ${
                               activeYear === year
-                                  ? 'bg-[#F5F5DC] text-[#2E4A3D] shadow-lg scale-110'
-                                  : 'bg-white/10 hover:bg-white/20 text-[#F5F5DC]'
+                                  ? 'bg-[#D2B48C] text-[#2E4A3D] shadow-lg scale-105 md:scale-110'
+                                  : 'bg-white/10 hover:bg-white/20 text-[#D2B48C]'
                           }`}
                       >
-                          ROK {year}
+                          🌲 ROK {year}
                       </button>
                   ))}
               </div>
           );
       };
+
+      // --- Komponent Szybkich Linków ---
+      const QuickLinks = () => (
+          <div className="flex justify-center gap-4 mb-8">
+              {EXTERNAL_LINKS.map((link, index) => (
+                  <a 
+                      key={index}
+                      href={link.url}
+                      target="_blank"
+                      className="flex flex-col items-center group w-20 text-center"
+                  >
+                      <div className="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center text-xl group-hover:bg-[#D2B48C] group-hover:text-[#2E4A3D] transition-colors shadow-md">
+                          {link.icon}
+                      </div>
+                      <span className="text-[10px] md:text-xs text-gray-400 mt-2 group-hover:text-[#D2B48C] transition-colors font-medium leading-tight">
+                        {link.name}
+                      </span>
+                  </a>
+              ))}
+          </div>
+      );
 
       // --- Główna Aplikacja ---
       const App = () => {
@@ -94,17 +140,19 @@
           );
 
           return (
-              <div className="bg-[#2E4A3D] text-[#F5F5DC] min-h-screen flex flex-col items-center font-sans p-4">
-                  <header className="text-center my-8 md:my-10">
-                      <h1 className="text-3xl md:text-5xl font-extrabold tracking-wide drop-shadow-md">
-                          <span role="img" aria-label="las">🌲</span> Bank Wiedzy Leśnej
+              <div className="bg-[#2E4A3D] text-[#F5F5DC] min-h-screen flex flex-col items-center font-sans p-3 md:p-4">
+                  <header className="text-center my-6 md:my-10 w-full px-2">
+                      <h1 className="text-3xl md:text-5xl font-extrabold tracking-wide drop-shadow-md break-words">
+                          Bank Wiedzy Leśnej
                       </h1>
-                      <p className="text-lg md:text-xl text-gray-300 mt-2">
+                      <p className="text-base md:text-xl text-gray-300 mt-2">
                           Wspólna baza egzaminów i notatek
                       </p>
                   </header>
 
-                  <main className="w-full max-w-5xl flex-grow">
+                  <main className="w-full max-w-5xl flex-grow mb-8">
+                      
+                      {/* ZAKŁADKI */}
                       <Tabs 
                           years={YEAR_DATA.map(y => y.year)} 
                           activeYear={activeYear} 
@@ -114,41 +162,45 @@
                       {currentYearData && (
                           <div className="bg-white/5 backdrop-blur-sm p-4 md:p-8 rounded-xl shadow-2xl animate-fade-in border border-white/10">
                               
-                              <p className="text-center text-gray-200 mb-6 text-lg italic border-b border-white/10 pb-4">
+                              <p className="text-center text-gray-200 mb-6 text-sm md:text-lg italic border-b border-white/10 pb-4">
                                   {currentYearData.description}
                               </p>
+
+                              {/* SEKCJA: Szybkie Linki */}
+                              <QuickLinks />
                               
-                              {/* Sekcja: Dodawanie (Góra) */}
-                              <div className="mb-8 flex flex-col items-center justify-center bg-[#c27803]/20 p-6 rounded-lg border border-[#c27803]/50">
-                                   <h2 className="text-2xl font-bold text-yellow-400 mb-2">Masz swoje notatki?</h2>
-                                   <p className="text-gray-300 mb-4 text-center">Pomóż innym studentom i wrzuć zdjęcia lub PDFy.</p>
+                              {/* Sekcja: Dodawanie */}
+                              <div className="mb-6 md:mb-8 flex flex-col items-center justify-center bg-[#8B4513]/30 p-4 md:p-6 rounded-lg border border-[#8B4513]/50">
+                                   <h2 className="text-xl md:text-2xl font-bold text-[#D2B48C] mb-2 text-center">Masz swoje notatki?</h2>
+                                   <p className="text-sm md:text-base text-gray-300 mb-4 text-center">Pomóż innym studentom i wrzuć zdjęcia lub PDFy.</p>
                                    <a 
                                       href={FORM_LINK} 
                                       target="_blank" 
-                                      className="bg-amber-600 text-white font-bold py-3 px-10 rounded-full text-lg shadow-lg hover:bg-amber-500 hover:scale-105 transition-all flex items-center gap-2"
+                                      className="w-full md:w-auto text-center bg-[#D2691E] text-white font-bold py-3 px-6 md:px-10 rounded-full text-base md:text-lg shadow-lg hover:bg-[#A0522D] hover:scale-105 active:scale-95 transition-all flex justify-center items-center gap-2"
                                    >
-                                      <span>📤</span> Dodaj Plik (Formularz)
+                                      <span>📤</span> Dodaj Plik
                                    </a>
                               </div>
 
-                              {/* Sekcja: Przeglądanie (ZMIENIONA KOLORYSTYKA) */}
-                              {/* Dodano border w kolorze kremowym i zmieniono nagłówek na beżowy z zielonym tekstem */}
-                              <div className="bg-white rounded-lg overflow-hidden shadow-2xl border-4 border-[#F5F5DC]">
-                                  <div className="bg-[#F5F5DC] p-4 border-b-2 border-[#D4D4B8] flex items-center gap-3 text-[#2E4A3D]">
-                                      <span className="text-2xl">📂</span>
-                                      <div>
-                                          <span className="font-extrabold text-sm tracking-wider block">ARCHIWUM DOKUMENTÓW</span>
-                                          <span className="text-xs opacity-80 font-semibold">ROK {currentYearData.year} • DYSK GOOGLE</span>
+                              {/* Sekcja: Przeglądanie */}
+                              <div className="bg-[#D2B48C] rounded-lg overflow-hidden shadow-2xl border-2 md:border-4 border-[#8B4513]">
+                                  <div className="bg-[#D2B48C] p-3 md:p-4 border-b-2 border-[#8B4513] flex flex-wrap items-center gap-2 md:gap-3 text-[#3E2723]">
+                                      <span className="text-xl md:text-2xl">📂</span>
+                                      <div className="flex-1">
+                                          <span className="font-extrabold text-xs md:text-sm tracking-wider block">ARCHIWUM DOKUMENTÓW</span>
+                                          <span className="text-[10px] md:text-xs opacity-80 font-semibold text-[#3E2723]">ROK {currentYearData.year} • DYSK GOOGLE</span>
                                       </div>
                                   </div>
                                   
-                                  {/* IFRAME */}
                                   <iframe 
                                       src={`https://drive.google.com/embeddedfolderview?id=${currentYearData.driveId}#list`}
                                       width="100%" 
-                                      height="600" 
+                                      className="block h-[800px] md:h-[800px]"
                                       title={`Folder Rok ${currentYearData.year}`}
-                                      className="block"
+                                      style={{ 
+                                          filter: 'sepia(60%) brightness(92%) contrast(90%)', 
+                                          backgroundColor: '#E6D2B5' 
+                                      }}
                                   >
                                       Twoja przeglądarka nie obsługuje ramek.
                                   </iframe>
@@ -157,10 +209,8 @@
                           </div>
                       )}
                   </main>
-
-                  <footer className="w-full text-center py-6 mt-8 border-t border-white/10">
-                      <p className="text-gray-400 text-sm">Strona stworzona przez studentów dla studentów.</p>
-                  </footer>
+                  
+                  {/* STOPKA USUNIĘTA CAŁKOWICIE */}
               </div>
           );
       };
